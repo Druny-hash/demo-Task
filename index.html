@@ -1,19 +1,29 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="night">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <!-- CSS -->
-    <link rel="stylesheet" href="css/style.css">
-
-    <!-- Tailwind CSS & Daisy UI CSS (Updated to latest versions) -->
-    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.14/dist/tailwind.min.css" rel="stylesheet" type="text/css" />
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-
-    <title>TO-Do-List</title>
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+        <!-- CSS -->
+        <link rel="stylesheet" href="css/style.css">
+    
+        <!-- Tailwind CSS & Daisy UI CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
+        <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.14/dist/tailwind.min.css" rel="stylesheet" type="text/css" />
+        <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    
+        <!-- Custom DaisyUI Theme Override -->
+        <style>
+            [data-theme="night"] {
+                --base-100: #2a2a2a; /* Solid dark background for night theme */
+                --base-content: #ffffff; /* White text for contrast */
+            }
+        </style>
+    
+        <title>TO-Do-List</title>
+    </head>
 </head>
 <body>
 
@@ -29,23 +39,23 @@
             <h1>Todo List</h1>
             <!-- Error message -->
             <div class="alert-message"></div>
-            <div class="input-section">
-                <input type="text" placeholder="Add a todo . . ." class="input input-bordered input-accent w-full max-w-xs" aria-label="Task input" />
-                <input type="date" class="input input-bordered input-accent w-full max-w-xs schedule-date" aria-label="Due date input" />
-                <select class="select select-bordered select-accent w-full max-w-xs category-select" aria-label="Category selection">
+            <div class="input-section flex flex-col md:flex-row md:gap-4">
+                <input type="text" placeholder="Add a todo . . ." class="input input-bordered input-accent w-full" aria-label="Task input" />
+                <input type="date" class="input input-bordered input-accent w-full schedule-date" aria-label="Due date input" />
+                <select class="select select-bordered select-accent w-full category-select" aria-label="Category selection">
                     <option value="Work">Work</option>
                     <option value="Personal">Personal</option>
                     <option value="Urgent">Urgent</option>
                 </select>
-                <button class="btn btn-accent add-task-button" aria-label="Add task">
+                <button class="btn btn-accent add-task-button w-full md:w-auto" aria-label="Add task">
                     <i class="bx bx-plus bx-sm"></i>
                 </button>
             </div>
         </header>
 
-        <div class="todos-filter">
-            <div class="dropdown">
-                <label tabindex="0" class="btn m-1" aria-label="Filter tasks">Filter</label>
+        <div class="todos-filter flex flex-col md:flex-row gap-2 md:gap-0">
+            <div class="dropdown w-full md:w-auto">
+                <label tabindex="0" class="btn m-1 w-full" aria-label="Filter tasks">Filter</label>
                 <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
                     <li onclick="filterTodos('all')"><a>All</a></li>
                     <li onclick="filterTodos('pending')"><a>Pending</a></li>
@@ -55,32 +65,47 @@
                     <li onclick="filterTodosByCategory('Urgent')"><a>Urgent</a></li>
                 </ul>
             </div>
-            <div class="dropdown">
-                <label tabindex="0" class="btn m-1" aria-label="Sort tasks">Sort</label>
+            <div class="dropdown w-full md:w-auto">
+                <label tabindex="0" class="btn m-1 w-full" aria-label="Sort tasks">Sort</label>
                 <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
                     <li onclick="sortTodos('dueDate')"><a>By Due Date</a></li>
                     <li onclick="sortTodos('status')"><a>By Status</a></li>
                     <li onclick="sortTodos('alphabetical')"><a>Alphabetically</a></li>
                 </ul>
             </div>
-            <button class="btn btn-accent delete-all-btn" aria-label="Delete all tasks">
+            <button class="btn btn-accent delete-all-btn w-full md:w-auto" aria-label="Delete all tasks">
                 Delete All
             </button>
         </div>
 
-        <table class="table w-full">
-            <thead>
-                <tr>
-                    <th>Task</th>
-                    <th>Due Date</th>
-                    <th>Category</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody class="todos-list-body">
-            </tbody>
-        </table>
+        <div class="overflow-x-auto">
+            <table class="table w-full">
+                <thead>
+                    <tr>
+                        <th>Task</th>
+                        <th>Due Date</th>
+                        <th>Category</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="todos-list-body">
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Delete All Confirmation Modal -->
+        <input type="checkbox" id="delete-all-modal" class="modal-toggle" />
+        <div class="modal">
+            <div class="modal-box">
+                <h3 class="font-bold text-lg">Confirm Delete All</h3>
+                <p class="py-4">Are you sure you want to delete all todos? This action cannot be undone.</p>
+                <div class="modal-action">
+                    <label for="delete-all-modal" class="btn">Cancel</label>
+                    <button id="confirm-delete-all" class="btn btn-error">Delete All</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Theme switcher -->

@@ -89,27 +89,6 @@ class TodoManager {
     saveToLocalStorage() {
         localStorage.setItem("todos", JSON.stringify(this.todos));
     }
-
-    // Placeholder for backend implementation
-    /*
-    To add a backend for data persistence:
-    1. Set up a Node.js/Express server with a database (e.g., SQLite or MongoDB).
-    2. Create API endpoints for CRUD operations (e.g., GET /todos, POST /todos, PUT /todos/:id, DELETE /todos/:id).
-    3. Replace localStorage with Fetch API calls in this class. Example:
-       async fetchTodos() {
-           const response = await fetch('http://localhost:3000/todos');
-           this.todos = await response.json();
-       }
-       async addTodo(task, dueDate, category) {
-           const response = await fetch('http://localhost:3000/todos', {
-               method: 'POST',
-               headers: { 'Content-Type': 'application/json' },
-               body: JSON.stringify({ task, dueDate, category, completed: false }),
-           });
-           const newTodo = await response.json();
-           this.todos.push(newTodo);
-       }
-    */
 }
 
 class UIManager {
@@ -123,7 +102,7 @@ class UIManager {
         this.todosListBody = document.querySelector(".todos-list-body");
         this.alertMessage = document.querySelector(".alert-message");
         this.deleteAllBtn = document.querySelector(".delete-all-btn");
-        this.sortCriterion = "default"; // Default sorting
+        this.sortCriterion = "default";
 
         this.addEventListeners();
         this.showAllTodos();
@@ -139,7 +118,22 @@ class UIManager {
             }
         });
 
-        this.deleteAllBtn.addEventListener("click", () => this.handleClearAllTodos());
+        document.addEventListener("keydown", (e) => {
+            if (e.ctrlKey && e.key === "Enter" && this.taskInput.value.length > 0) {
+                this.handleAddTodo();
+            }
+            if (e.ctrlKey && e.shiftKey && e.key === "D") {
+                this.showDeleteAllModal();
+            }
+        });
+
+        this.deleteAllBtn.addEventListener("click", () => this.showDeleteAllModal());
+
+        const confirmDeleteAllBtn = document.querySelector("#confirm-delete-all");
+        confirmDeleteAllBtn.addEventListener("click", () => {
+            this.handleClearAllTodos();
+            document.getElementById("delete-all-modal").checked = false;
+        });
 
         const filterButtons = document.querySelectorAll(".todos-filter li");
         filterButtons.forEach((button) => {
@@ -160,6 +154,11 @@ class UIManager {
                 this.handleSortTodos(criterion);
             });
         });
+    }
+
+    showDeleteAllModal() {
+        const modal = document.getElementById("delete-all-modal");
+        modal.checked = true;
     }
 
     handleAddTodo() {
@@ -197,7 +196,6 @@ class UIManager {
             return;
         }
 
-        // Sort todos based on the selected criterion
         const sortedTodos = [...todos];
         if (this.sortCriterion === "due date") {
             sortedTodos.sort((a, b) => {
@@ -220,7 +218,7 @@ class UIManager {
                 <td>${this.todoItemFormatter.formatDueDate(todo.dueDate)}</td>
                 <td>${todo.category}</td>
                 <td>${this.todoItemFormatter.formatStatus(todo.completed)}</td>
-                <td>
+                <td class="flex gap-1">
                     <button class="btn btn-warning btn-sm" onclick="uiManager.handleEditTodo('${todo.id}')">
                         <i class="bx bx-edit-alt bx-bx-xs"></i>    
                     </button>
@@ -273,12 +271,12 @@ class UIManager {
     handleDeleteTodo(id) {
         const row = this.todosListBody.querySelector(`tr[data-id="${id}"]`);
         if (row) {
-            row.classList.add("removing");
-            row.addEventListener("animationend", () => {
+            row.classList.add("animate-fade-out");
+            setTimeout(() => {
                 this.todoManager.deleteTodo(id);
                 this.showAllTodos();
                 this.showAlertMessage("Todo deleted successfully", "success");
-            });
+            }, 300);
         }
     }
 
@@ -322,24 +320,8 @@ class UIManager {
                     this.showAlertMessage(`Reminder: Task "${todo.task}" is due today!`, "warning");
                 }
             });
-        }, 60000); // Check every minute
+        }, 300000);
     }
-
-    // Placeholder for unit tests
-    /*
-    To add unit tests with Jest:
-    1. Initialize a Node.js project: `npm init -y`.
-    2. Install Jest: `npm install --save-dev jest`.
-    3. Create a test file (e.g., `todoManager.test.js`) and write tests. Example:
-       const TodoManager = require('./main.js').TodoManager;
-       test('adds a todo', () => {
-           const formatter = { formatTask: (t) => t, formatDueDate: (d) => d || "No due date", formatStatus: (c) => c ? "Completed" : "Pending" };
-           const manager = new TodoManager(formatter);
-           const todo = manager.addTodo("Test task", "2025-04-20", "Work");
-           expect(todo.task).toBe("Test task");
-       });
-    4. Run tests: `npx jest`.
-    */
 }
 
 class ThemeSwitcher {
