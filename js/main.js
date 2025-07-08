@@ -1,5 +1,9 @@
 class TodoItemFormatter {
     formatTask(task) {
+        // Show full task on mobile, truncate on larger screens
+        if (window.innerWidth <= 640) {
+            return task.length > 20 ? task.slice(0, 20) + "..." : task;
+        }
         return task.length > 14 ? task.slice(0, 14) + "..." : task;
     }
 
@@ -8,7 +12,7 @@ class TodoItemFormatter {
     }
 
     formatStatus(completed) {
-        return completed ? "Completed" : "Pending";
+        return completed ? "Done" : "Todo";
     }
 }
 
@@ -107,6 +111,7 @@ class UIManager {
         this.addEventListeners();
         this.showAllTodos();
         this.startDueDateNotifications();
+        this.addResizeListener();
     }
 
     addEventListeners() {
@@ -192,7 +197,10 @@ class UIManager {
         this.todosListBody.innerHTML = "";
 
         if (todos.length === 0) {
-            this.todosListBody.innerHTML = `<tr><td colspan="5" class="text-center">No task found</td></tr>`;
+            // Adjust colspan based on screen size
+            const isMobile = window.innerWidth <= 640;
+            const colspan = isMobile ? "3" : "5"; // Hide some columns on mobile
+            this.todosListBody.innerHTML = `<tr><td colspan="${colspan}" class="text-center py-8">No task found</td></tr>`;
             return;
         }
 
@@ -213,23 +221,31 @@ class UIManager {
             const row = document.createElement("tr");
             row.classList.add("todo-item");
             row.dataset.id = todo.id;
-            row.innerHTML = `
-                <td>${this.todoItemFormatter.formatTask(todo.task)}</td>
-                <td>${this.todoItemFormatter.formatDueDate(todo.dueDate)}</td>
-                <td>${todo.category}</td>
-                <td>${this.todoItemFormatter.formatStatus(todo.completed)}</td>
-                <td class="flex gap-1">
-                    <button class="btn btn-warning btn-sm" onclick="uiManager.handleEditTodo('${todo.id}')">
-                        <i class="bx bx-edit-alt bx-bx-xs"></i>    
+            
+            // Responsive table content
+            const taskCell = `<td class="text-xs md:text-sm">${this.todoItemFormatter.formatTask(todo.task)}</td>`;
+            const dueDateCell = `<td class="text-xs md:text-sm hidden sm:table-cell">${this.todoItemFormatter.formatDueDate(todo.dueDate)}</td>`;
+            const categoryCell = `<td class="text-xs md:text-sm hidden md:table-cell">${todo.category}</td>`;
+            const statusCell = `<td class="text-xs md:text-sm">
+                <span class="badge badge-sm ${todo.completed ? 'badge-success' : 'badge-warning'}">
+                    ${this.todoItemFormatter.formatStatus(todo.completed)}
+                </span>
+            </td>`;
+            const actionsCell = `<td class="text-xs md:text-sm">
+                <div class="flex gap-1 flex-wrap">
+                    <button class="btn btn-warning btn-xs md:btn-sm" onclick="uiManager.handleEditTodo('${todo.id}')" title="Edit">
+                        <i class="bx bx-edit-alt"></i>    
                     </button>
-                    <button class="btn btn-success btn-sm" onclick="uiManager.handleToggleStatus('${todo.id}')">
-                        <i class="bx bx-check bx-xs"></i>
+                    <button class="btn btn-success btn-xs md:btn-sm" onclick="uiManager.handleToggleStatus('${todo.id}')" title="Toggle Status">
+                        <i class="bx bx-check"></i>
                     </button>
-                    <button class="btn btn-error btn-sm" onclick="uiManager.handleDeleteTodo('${todo.id}')">
-                        <i class="bx bx-trash bx-xs"></i>
+                    <button class="btn btn-error btn-xs md:btn-sm" onclick="uiManager.handleDeleteTodo('${todo.id}')" title="Delete">
+                        <i class="bx bx-trash"></i>
                     </button>
-                </td>
-            `;
+                </div>
+            </td>`;
+            
+            row.innerHTML = taskCell + dueDateCell + categoryCell + statusCell + actionsCell;
             this.todosListBody.appendChild(row);
         });
     }
@@ -315,12 +331,22 @@ class UIManager {
     startDueDateNotifications() {
         setInterval(() => {
             const today = new Date().toISOString().split("T")[0];
-            this.todos.forEach((todo) => {
+            this.todoManager.todos.forEach((todo) => {
                 if (todo.dueDate !== "No due date" && todo.dueDate === today && !todo.completed) {
                     this.showAlertMessage(`Reminder: Task "${todo.task}" is due today!`, "warning");
                 }
             });
         }, 300000);
+    }
+
+    addResizeListener() {
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                this.showAllTodos(); // Refresh the display to update formatting
+            }, 250);
+        });
     }
 }
 
