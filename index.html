@@ -39,70 +39,84 @@
             <h1>Todo List</h1>
             <!-- Error message -->
             <div class="alert-message"></div>
-            <div class="input-section flex flex-col md:flex-row md:gap-4">
+            <div class="input-section flex flex-col gap-4 md:flex-row md:gap-6">
                 <input type="text" placeholder="Add a todo . . ." class="input input-bordered input-accent w-full" aria-label="Task input" />
-                <input type="date" class="input input-bordered input-accent w-full schedule-date" aria-label="Due date input" />
-                <select class="select select-bordered select-accent w-full category-select" aria-label="Category selection">
+                <input type="date" class="input input-bordered input-accent w-full md:w-48 schedule-date" aria-label="Due date input" />
+                <select class="select select-bordered select-accent w-full md:w-40 category-select" aria-label="Category selection">
                     <option value="Work">Work</option>
                     <option value="Personal">Personal</option>
                     <option value="Urgent">Urgent</option>
                 </select>
-                <button class="btn btn-accent add-task-button w-full md:w-auto" aria-label="Add task">
+                <button class="btn btn-accent add-task-button w-full md:w-auto md:min-w-[100px]" aria-label="Add task">
                     <i class="bx bx-plus bx-sm"></i>
                 </button>
             </div>
         </header>
 
-        <div class="todos-filter flex flex-col md:flex-row gap-2 md:gap-0">
-            <div class="dropdown w-full md:w-auto">
-                <label tabindex="0" class="btn m-1 w-full" aria-label="Filter tasks">Filter</label>
-                <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
-                    <li onclick="filterTodos('all')"><a>All</a></li>
-                    <li onclick="filterTodos('pending')"><a>Pending</a></li>
-                    <li onclick="filterTodos('completed')"><a>Completed</a></li>
-                    <li onclick="filterTodosByCategory('Work')"><a>Work</a></li>
-                    <li onclick="filterTodosByCategory('Personal')"><a>Personal</a></li>
-                    <li onclick="filterTodosByCategory('Urgent')"><a>Urgent</a></li>
-                </ul>
+        <div class="todos-filter flex flex-col gap-3 md:flex-row md:justify-between md:items-center">
+            <!-- Left side: Filter and Sort buttons -->
+            <div class="flex flex-col gap-2 sm:flex-row sm:gap-3 md:gap-4">
+                <div class="dropdown w-full sm:w-auto">
+                    <label tabindex="0" class="btn btn-outline btn-sm md:btn-md w-full sm:w-auto min-w-[100px]" aria-label="Filter tasks" title="Filter Tasks">
+                        <i class="bx bx-filter-alt bx-xs md:bx-sm"></i>
+                        <span class="btn-text">Filter</span>
+                    </label>
+                    <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52 z-10">
+                        <li onclick="filterTodos('all')"><a>All</a></li>
+                        <li onclick="filterTodos('pending')"><a>Pending</a></li>
+                        <li onclick="filterTodos('completed')"><a>Completed</a></li>
+                        <li onclick="filterTodosByCategory('Work')"><a>Work</a></li>
+                        <li onclick="filterTodosByCategory('Personal')"><a>Personal</a></li>
+                        <li onclick="filterTodosByCategory('Urgent')"><a>Urgent</a></li>
+                    </ul>
+                </div>
+                <div class="dropdown w-full sm:w-auto">
+                    <label tabindex="0" class="btn btn-outline btn-sm md:btn-md w-full sm:w-auto min-w-[100px]" aria-label="Sort tasks" title="Sort Tasks">
+                        <i class="bx bx-sort bx-xs md:bx-sm"></i>
+                        <span class="btn-text">Sort</span>
+                    </label>
+                    <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52 z-10">
+                        <li onclick="sortTodos('dueDate')"><a>By Due Date</a></li>
+                        <li onclick="sortTodos('status')"><a>By Status</a></li>
+                        <li onclick="sortTodos('alphabetical')"><a>Alphabetically</a></li>
+                    </ul>
+                </div>
             </div>
-            <div class="dropdown w-full md:w-auto">
-                <label tabindex="0" class="btn m-1 w-full" aria-label="Sort tasks">Sort</label>
-                <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
-                    <li onclick="sortTodos('dueDate')"><a>By Due Date</a></li>
-                    <li onclick="sortTodos('status')"><a>By Status</a></li>
-                    <li onclick="sortTodos('alphabetical')"><a>Alphabetically</a></li>
-                </ul>
-            </div>
-            <button class="btn btn-accent delete-all-btn w-full md:w-auto" aria-label="Delete all tasks">
-                Delete All
+            
+            <!-- Right side: Delete All button -->
+            <button class="btn btn-error btn-sm md:btn-md delete-all-btn w-full sm:w-auto sm:min-w-[44px]" aria-label="Delete all tasks" title="Delete All Tasks">
+                <i class="bx bx-trash bx-xs md:bx-sm"></i>
+                <span class="btn-text">Delete All</span>
             </button>
         </div>
 
-        <div class="overflow-x-auto">
-            <table class="table w-full">
-                <thead>
-                    <tr>
-                        <th>Task</th>
-                        <th>Due Date</th>
-                        <th>Category</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="todos-list-body">
-                </tbody>
-            </table>
+        <div class="table-container">
+            <div class="overflow-x-auto">
+                <table class="table table-zebra w-full">
+                    <thead>
+                        <tr>
+                            <th class="text-xs md:text-sm">Task</th>
+                            <th class="text-xs md:text-sm hidden sm:table-cell">Due Date</th>
+                            <th class="text-xs md:text-sm hidden md:table-cell">Category</th>
+                            <th class="text-xs md:text-sm">Status</th>
+                            <th class="text-xs md:text-sm">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="todos-list-body">
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <!-- Delete All Confirmation Modal -->
         <input type="checkbox" id="delete-all-modal" class="modal-toggle" />
         <div class="modal">
-            <div class="modal-box">
+            <div class="modal-box w-11/12 max-w-md">
                 <h3 class="font-bold text-lg">Confirm Delete All</h3>
-                <p class="py-4">Are you sure you want to delete all todos? This action cannot be undone.</p>
-                <div class="modal-action">
-                    <label for="delete-all-modal" class="btn">Cancel</label>
-                    <button id="confirm-delete-all" class="btn btn-error">Delete All</button>
+                <p class="py-4 text-sm md:text-base">Are you sure you want to delete all todos? This action cannot be undone.</p>
+                <div class="modal-action flex-col gap-2 md:flex-row md:gap-0">
+                    <label for="delete-all-modal" class="btn btn-ghost w-full md:w-auto">Cancel</label>
+                    <button id="confirm-delete-all" class="btn btn-error w-full md:w-auto">Delete All</button>
                 </div>
             </div>
         </div>
